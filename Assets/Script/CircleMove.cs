@@ -4,15 +4,15 @@ using System;
 using UnityEngine;
 using UniRx;
 using UniRx.Triggers;
-
 public class CircleMove : MonoBehaviour
 {
     public float BPM;
     public float circleRad;
     [SerializeField] private RectTransform timingRect;
-    [SerializeField] private PlayerMove playerMove;
-    [SerializeField] private ScoreManager scoreManager;
-    public float runningTime = 0;
+    [SerializeField] private Player playerMove;
+    [SerializeField] private ScoreManager scoreManagerPresenter;
+    private ScoreManagerStat scoreManager;
+    private float runningTime = 0;
     private bool init = false;
     public RectTransform timingTr;
     public Vector2 timingX;
@@ -20,14 +20,15 @@ public class CircleMove : MonoBehaviour
 
     private void Awake()
     {
+        scoreManager = scoreManagerPresenter.scoreManager;
         timingX = new Vector2(timingRect.localPosition.x - timingRect.rect.width / 2, timingRect.localPosition.x + timingRect.rect.width / 2);
         timingY = new Vector2(timingRect.localPosition.y - timingRect.rect.height / 2, timingRect.localPosition.y + timingRect.rect.height / 2);
         IObservable<long> update = Observable.EveryUpdate();
         var onTriggerEnter = this.OnTriggerEnter2DAsObservable();
-        update.Subscribe(_ => Move()).AddTo(gameObject);
+        update.Subscribe(_ => Move()).AddTo(gameObject).AddTo(this);
         onTriggerEnter
             .Where(collision => collision.gameObject.CompareTag("Timing"))
-            .Subscribe(_ => OnTriggerEnterTimingRect());
+            .Subscribe(_ => OnTriggerEnterTimingRect()).AddTo(this);
     }
 
     private void Move()
@@ -48,7 +49,7 @@ public class CircleMove : MonoBehaviour
     private void OnTriggerEnterTimingRect()
     {
         if (playerMove.noteState == NoteState.isHolding)
-            playerMove.cnt++;
+            playerMove.playerStat.CalculateCnt(1);
         else if (playerMove.noteState == NoteState.isWaitingForNext)
         {
             Debug.Log("쉬어가기");
@@ -57,11 +58,11 @@ public class CircleMove : MonoBehaviour
         else
         {
             Debug.Log("실패");
-            scoreManager.comboAttempt--;
-            if (scoreManager.comboAttempt == 0)
+            scoreManager.CalculateComboAttempt(-1);
+            if (scoreManager.ComboAttempt.Value == 0)
             {
-                scoreManager.combo = 0;
-                scoreManager.comboAttempt = 5;
+                scoreManager.ResetCombo();
+                scoreManager.ResetComboAttempt();
             }
         }
     }

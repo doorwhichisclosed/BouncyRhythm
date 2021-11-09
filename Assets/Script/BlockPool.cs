@@ -6,7 +6,7 @@ using Cysharp.Threading.Tasks;
 public class BlockPool : MonoBehaviour
 {
     [SerializeField] private Block pBlock;
-    [SerializeField] private PlayerMove playerMove;
+    [SerializeField] private Player playerMove;
     private List<Block> blockPool = new List<Block>();
     private List<Block> activeBlockPool = new List<Block>();
     private int height = 1;
