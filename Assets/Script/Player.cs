@@ -74,12 +74,12 @@ public class PlayerStat
 }
 public class Player : MonoBehaviour
 {
-    public NoteState noteState = NoteState.isWaitingForNext;
-
+    [HideInInspector] public NoteState noteState = NoteState.isWaitingForNext;
     [SerializeField] private UIButton leftButton;
     [SerializeField] private UIButton rightButton;
     [SerializeField] private CircleMove circleMove;
     [SerializeField] private ScoreManager scoreManagerPresenter;
+    [SerializeField] private BlockPool blockPool;
     public PlayerStat playerStat = new PlayerStat();
     private ScoreManagerStat scoreManager;
     /// <summary>
@@ -113,30 +113,62 @@ public class Player : MonoBehaviour
 
     private void StopHolding(Direction direction)
     {
-        if(playerStat.Cnt.Value > 1)
+        if (circleMove.timingTr.localPosition.x >= timingX.x
+            && circleMoveTr.localPosition.x <= timingX.y + 75
+            && circleMoveTr.localPosition.y >= timingY.x - 75
+            && circleMoveTr.localPosition.y <= timingY.y
+            && canMove
+            && noteState == NoteState.isHolding)
         {
-            noteState = NoteState.isNotHolding;
-        }
-        if (circleMove.timingTr.localPosition.x >= timingX.x && circleMoveTr.localPosition.x <= timingX.y+75 && circleMoveTr.localPosition.y >= timingY.x-75 && circleMoveTr.localPosition.y <= timingY.y)
-        {
-            scoreManager.CalculateCombo(1);
-            Debug.Log(direction + ": " + playerStat.Cnt.Value + " 콤보: " + scoreManager.Combo.Value);
             noteState = NoteState.isWaitingForNext;
             if(direction==Direction.left)
             {
-                playerStat.CalculateCurPos(-playerStat.Cnt.Value);
-                transform.DOJump(new Vector2(transform.position.x - playerStat.Cnt.Value, transform.position.y + 1), 0.5f, 1, 0.3f)
-                .OnStart(() => canMove = false)
-                .OnComplete(() => canMove = true);
-                playerStat.CalulateCurHeight(1);
+                if (blockPool.CheckAnswer(playerStat.CurPos.Value - playerStat.Cnt.Value))
+                {
+                    playerStat.CalculateCurPos(-playerStat.Cnt.Value);
+                    transform.DOJump(new Vector2(transform.position.x - playerStat.Cnt.Value * 1.3f, transform.position.y + 2), 0.5f, 1, 0.3f)
+                    .OnStart(() => canMove = false)
+                    .OnComplete(() => canMove = true);
+                    playerStat.CalulateCurHeight(1);
+                    blockPool.GoUp(1);
+                    scoreManager.CalculateCombo(1);
+                }
+                else
+                {
+                    Debug.Log("틀림");
+                    Debug.Log(playerStat.CurPos.Value + "cnt" + playerStat.Cnt.Value);
+                    scoreManager.CalculateComboAttempt(-1);
+                    if (scoreManager.ComboAttempt.Value == 0)
+                    {
+                        scoreManager.ResetCombo();
+                        scoreManager.ResetComboAttempt();
+                    }
+                }
+
             }
             else if(direction==Direction.right)
             {
-                playerStat.CalculateCurPos(playerStat.Cnt.Value);
-                transform.DOJump(new Vector2(transform.position.x + playerStat.Cnt.Value, transform.position.y + 1), 0.5f, 1, 0.3f)
-                .OnStart(() => canMove = false)
-                .OnComplete(() => canMove = true);
-                playerStat.CalulateCurHeight(1);
+                if (blockPool.CheckAnswer(playerStat.CurPos.Value + playerStat.Cnt.Value))
+                {
+                    playerStat.CalculateCurPos(playerStat.Cnt.Value);
+                    transform.DOJump(new Vector2(transform.position.x + playerStat.Cnt.Value * 1.3f, transform.position.y + 2), 0.5f, 1, 0.3f)
+                    .OnStart(() => canMove = false)
+                    .OnComplete(() => canMove = true);
+                    playerStat.CalulateCurHeight(1);
+                    blockPool.GoUp(1);
+                    scoreManager.CalculateCombo(1);
+                }
+                else
+                {
+                    Debug.Log("틀림");
+                    Debug.Log(playerStat.CurPos.Value+"cnt"+ playerStat.Cnt.Value);
+                    scoreManager.CalculateComboAttempt(-1);
+                    if (scoreManager.ComboAttempt.Value == 0)
+                    {
+                        scoreManager.ResetCombo();
+                        scoreManager.ResetComboAttempt();
+                    }
+                }
             }
         }
         else

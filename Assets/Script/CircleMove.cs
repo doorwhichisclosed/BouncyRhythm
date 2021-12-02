@@ -14,6 +14,7 @@ public class CircleMove : MonoBehaviour
     private ScoreManagerStat scoreManager;
     private float runningTime = 0;
     private bool init = false;
+    private bool isFirstRotation = true;
     public RectTransform timingTr;
     public Vector2 timingX;
     public Vector2 timingY;
