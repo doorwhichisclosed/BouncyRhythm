@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using UniRx;
+using UnityEngine.SceneManagement;
 using UniRx.Triggers;
 public enum NoteState
 {
@@ -38,6 +39,8 @@ public class PlayerStat
     public void CalculateLife(int i)
     {
         Life.Value += i;
+        if (Life.Value == 0)
+            SceneManager.LoadScene("Ending");
     }
 
     public void ResetLife()
@@ -165,6 +168,7 @@ public class Player : MonoBehaviour
                     scoreManager.CalculateComboAttempt(-1);
                     if (scoreManager.ComboAttempt.Value == 0)
                     {
+                        playerStat.CalculateLife(-1);
                         scoreManager.ResetCombo();
                         scoreManager.ResetComboAttempt();
                     }

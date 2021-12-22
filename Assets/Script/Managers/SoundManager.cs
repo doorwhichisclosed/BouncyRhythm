@@ -10,9 +10,11 @@ public enum MusicType
 
 public class SoundManager : MonoBehaviour
 {
+    public int BPM { get {return curMusic.bpm;} }
     [SerializeField] private AudioSource musicSource;
     [SerializeField] private AudioSource sfxSource;
     [SerializeField] private AudioSource bgmSource;
+    [SerializeField] private MusicSO curMusic;
 
     [Header("BGM")]
     [SerializeField] private List<AudioClip> bgmClips;
@@ -61,6 +63,7 @@ public class SoundManager : MonoBehaviour
     {
         musicSource.loop = true;
         musicSource.Play();
+        Debug.Log("¿Ωæ« Ω√¿€");
     }
 
     public void PlayBgm(int num)
@@ -73,5 +76,15 @@ public class SoundManager : MonoBehaviour
     public void PlaySFX(int num)
     {
         sfxSource.PlayOneShot(sfxClips[num]);
+    }
+
+    public void SelectMusic(string name)
+    {
+        var selectedMusic = Resources.Load(name) as MusicSO;
+        if (selectedMusic == null)
+            return;
+        curMusic = selectedMusic;
+        musicSource.clip = curMusic.music;
+        Debug.Log(musicSource.clip.name);
     }
 }

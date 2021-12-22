@@ -21,6 +21,7 @@ public class CircleMove : MonoBehaviour
 
     private void Awake()
     {
+        BPM = SoundManager.instance.BPM;
         scoreManager = scoreManagerPresenter.scoreManager;
         timingX = new Vector2(timingRect.localPosition.x - timingRect.rect.width / 2, timingRect.localPosition.x + timingRect.rect.width / 2);
         timingY = new Vector2(timingRect.localPosition.y - timingRect.rect.height / 2, timingRect.localPosition.y + timingRect.rect.height / 2);
@@ -34,7 +35,7 @@ public class CircleMove : MonoBehaviour
 
     private void Move()
     {
-        runningTime += 3*BPM * Time.deltaTime;
+        runningTime += (360*(BPM/60)) * Time.deltaTime;
         if(runningTime>3600)
         {
             runningTime = 0;
@@ -49,6 +50,12 @@ public class CircleMove : MonoBehaviour
 
     private void OnTriggerEnterTimingRect()
     {
+        if (isFirstRotation&&playerMove.noteState!=NoteState.isWaitingForNext)
+        {
+            SoundManager.instance.PlayMusic();
+            isFirstRotation = false;
+        }
+
         if (playerMove.noteState == NoteState.isHolding)
             playerMove.playerStat.CalculateCnt(1);
         else if (playerMove.noteState == NoteState.isWaitingForNext)
