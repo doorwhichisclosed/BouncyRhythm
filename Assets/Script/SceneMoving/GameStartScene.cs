@@ -1,32 +1,21 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
+using TMPro;
+using DG.Tweening;
 using UniRx;
 using UnityEngine.SceneManagement;
-using TMPro;
-[System.Serializable] public struct StartButton
-{
-    public Button button;
-    public string musicName;
-    
-    public void Init()
-    {
-       //button.GetComponent<TextMeshPro>().text = musicName;
-    }
-}
+
 public class GameStartScene : MonoBehaviour
 {
-    [SerializeField] private List<StartButton> buttonList = new List<StartButton>();
+    [SerializeField] TextMeshProUGUI pressText;
+    [SerializeField] UIButton startButton;
     private void Awake()
     {
-        foreach(var button in buttonList)
-        {
-            button.Init();
-            button.button.OnClickAsObservable().Subscribe(_=> {
-                SoundManager.instance.SelectMusic(button.musicName);
-                SceneManager.LoadScene("CircleMove");
-                }).AddTo(this);
-        }
+        Sequence textSequence = DOTween.Sequence();
+        textSequence
+            .Append(pressText.DOFade(0, 0.5f))
+            .Append(pressText.DOFade(1, 0.5f))
+            .SetLoops(-1, LoopType.Restart);
+        startButton.OnPointerUp.Subscribe(_ => 
+        SceneManager.LoadScene("MusicSelect")).AddTo(gameObject);
     }
 }

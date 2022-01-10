@@ -69,6 +69,7 @@ public class CircleMove : MonoBehaviour
             scoreManager.CalculateComboAttempt(-1);
             if (scoreManager.ComboAttempt.Value == 0)
             {
+                playerMove.playerStat.CalculateLife(-1);
                 scoreManager.ResetCombo();
                 scoreManager.ResetComboAttempt();
             }

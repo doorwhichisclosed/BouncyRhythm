@@ -8,7 +8,8 @@ public class ScoreManagerStat
 {
     public ReactiveProperty<int> Combo { get; private set; }
     public ReactiveProperty<int> ComboAttempt { get; private set; }
-    public ReactiveProperty<float> Score { get; private set; }
+    public ReactiveProperty<int> Score { get; private set; }
+    public int maxCombo = 0;
 
     public ScoreManagerStat()
     {
@@ -19,7 +20,7 @@ public class ScoreManagerStat
     {
         Combo = new ReactiveProperty<int>(0);
         ComboAttempt = new ReactiveProperty<int>(5);
-        Score = new ReactiveProperty<float>(0);
+        Score = new ReactiveProperty<int>(0);
     }
 
     public void ResetCombo()
@@ -30,6 +31,8 @@ public class ScoreManagerStat
     public void CalculateCombo(int i)
     {
         Combo.Value += i;
+        if (Combo.Value > maxCombo)
+            maxCombo = Combo.Value;
     }
 
     public void ResetComboAttempt()
@@ -40,6 +43,7 @@ public class ScoreManagerStat
     public void CalculateComboAttempt(int i)
     {
         ComboAttempt.Value += i;
+        Debug.Log(ComboAttempt.Value);
     }
 
     public void ResetScore()
@@ -50,6 +54,12 @@ public class ScoreManagerStat
     public void CalculateScore(int i)
     {
         Score.Value += i;
+    }
+
+    public void OnEnd()
+    {
+        GameManager.instance.maxCombo = maxCombo;
+        GameManager.instance.finalScore=Score.Value;
     }
 }
 
@@ -67,9 +77,10 @@ public class ScoreManager : MonoBehaviour
 
     public void Init()
     {
-        scoreManager.Combo.Subscribe(x => ComboTextUpdate(x));
-        scoreManager.ComboAttempt.Subscribe(x => ComboAttempTextUpdate(x));
-        scoreManager.Score.Subscribe(x => ScoreTextUpdate(x));
+        scoreManager.Combo.Subscribe(x => ComboTextUpdate(x)).AddTo(gameObject);
+        scoreManager.ComboAttempt.Subscribe(x => ComboAttempTextUpdate(x)).AddTo(gameObject);
+        scoreManager.Score.Subscribe(x => ScoreTextUpdate(x)).AddTo(gameObject);
+        GameManager.instance.onEndEvent += scoreManager.OnEnd;
     }
 
     private void ComboTextUpdate(int x)

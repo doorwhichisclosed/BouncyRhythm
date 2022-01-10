@@ -26,7 +26,7 @@ public class SoundManager : MonoBehaviour
 
     private void Awake()
     {
-        if(Instance == null)
+        if (Instance == null)
         {
             Instance = this;
             DontDestroyOnLoad(this);
@@ -37,25 +37,25 @@ public class SoundManager : MonoBehaviour
                 DestroyImmediate(this);
         }
 
-        if(musicSource==null)
+        if (musicSource == null)
         {
             var instance = new GameObject();
             instance.transform.SetParent(this.transform);
-            musicSource=instance.AddComponent<AudioSource>();
+            musicSource = instance.AddComponent<AudioSource>();
         }
 
-        if(sfxSource==null)
+        if (sfxSource == null)
         {
             var instance = new GameObject();
             instance.transform.SetParent(this.transform);
-            sfxSource =instance.AddComponent<AudioSource>();
+            sfxSource = instance.AddComponent<AudioSource>();
         }
-        if(
-            bgmSource==null)
+        if (
+            bgmSource == null)
         {
             var instance = new GameObject();
             instance.transform.SetParent(this.transform);
-            bgmSource =instance.AddComponent<AudioSource>();
+            bgmSource = instance.AddComponent<AudioSource>();
         }
     }
 
@@ -64,6 +64,11 @@ public class SoundManager : MonoBehaviour
         musicSource.loop = true;
         musicSource.Play();
         Debug.Log("¿Ωæ« Ω√¿€");
+    }
+
+    public void StopMusic()
+    {
+        musicSource.Stop();
     }
 
     public void PlayBgm(int num)
@@ -80,7 +85,7 @@ public class SoundManager : MonoBehaviour
 
     public void SelectMusic(string name)
     {
-        var selectedMusic = Resources.Load(name) as MusicSO;
+        var selectedMusic = Resources.Load("Songs/" + name) as MusicSO;
         if (selectedMusic == null)
             return;
         curMusic = selectedMusic;

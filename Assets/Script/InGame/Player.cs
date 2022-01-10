@@ -39,13 +39,18 @@ public class PlayerStat
     public void CalculateLife(int i)
     {
         Life.Value += i;
-        if (Life.Value == 0)
+        Debug.Log(Life.Value);
+        if (Life.Value <= 0)
+        {
+            GameManager.instance.onEndEvent();
+            GameManager.instance.onEndEvent = null;
             SceneManager.LoadScene("Ending");
+        }
     }
 
     public void ResetLife()
     {
-        Life.Value = 0;
+        Life.Value = 5;
     }
 
     public void CalculateCurPos(int i)
@@ -143,6 +148,7 @@ public class Player : MonoBehaviour
                     scoreManager.CalculateComboAttempt(-1);
                     if (scoreManager.ComboAttempt.Value == 0)
                     {
+                        playerStat.CalculateLife(-1);
                         scoreManager.ResetCombo();
                         scoreManager.ResetComboAttempt();
                     }
@@ -181,6 +187,8 @@ public class Player : MonoBehaviour
             scoreManager.CalculateComboAttempt(-1);
             if (scoreManager.ComboAttempt.Value == 0)
             {
+                Debug.Log("±ðÀÓ");
+                playerStat.CalculateLife(-1);
                 scoreManager.ResetCombo();
                 scoreManager.ResetComboAttempt();
             }
